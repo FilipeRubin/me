@@ -16,8 +16,9 @@ void Window::Process()
 	}
 }
 
-Window::Window() :
-	m_window(new Win32Window())
+Window::Window(std::unique_ptr<ILogger>&& logger) :
+	m_window(new Win32Window()),
+	m_logger(std::move(logger))
 {
 	s_windows.emplace_back(m_window);
 }
@@ -36,6 +37,10 @@ bool Window::IsRunning() const
 bool Window::TryInitialize()
 {
 	if (not m_window->TryCreate())
+	{
+		m_logger->LogError("Window failed to initialize.");
 		return false;
+	}
+	m_logger->LogInfo("Window created successfully.");
 	return true;
 }
