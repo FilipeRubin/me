@@ -24,6 +24,9 @@
     <ClInclude Include="src\win32\win32-window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\window-parameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\window.cpp">

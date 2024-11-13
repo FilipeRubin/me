@@ -1,6 +1,6 @@
 #pragma once
 #include "win32-window-class.h"
-#include <string>
+#include "window-parameters.h"
 
 class Win32Window
 {
@@ -11,13 +11,13 @@ public:
 	const std::string& GetLastErrorInformation() const;
 	bool IsRunning() const;
 	void PollWindowMessages();
-	bool TryCreate();
+	bool TryCreate(const WindowParameters& parameters);
 private:
 	static Win32WindowClass s_windowClass;
 	static unsigned int s_runningWindowsCount;
 	static void DecreaseCounter();
 	static bool TryIncreaseCounter();
-	bool TryCreateAndShow();
+	bool TryCreateAndShow(const WindowParameters& parameters);
 	void* m_hwnd;
 	std::string m_lastErrorInfo;
 };

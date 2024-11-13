@@ -5,6 +5,19 @@
 Win32WindowClass Win32Window::s_windowClass = Win32WindowClass();
 unsigned int Win32Window::s_runningWindowsCount = 0U;
 
+static std::wstring StringToWideString(const std::string& source)
+{
+	if (source.empty())
+	{
+		return std::wstring();
+	}
+
+	size_t length = MultiByteToWideChar(CP_UTF8, 0, source.c_str(), (int)source.length(), 0, 0);
+	std::wstring result(length, L'\0');
+	MultiByteToWideChar(CP_UTF8, 0, source.c_str(), (int)source.length(), &result[0], (int)result.length());
+	return result;
+}
+
 void Win32Window::PollGeneralMessages()
 {
 	MSG msg = {};
@@ -47,7 +60,7 @@ void Win32Window::PollWindowMessages()
 	}
 }
 
-bool Win32Window::TryCreate()
+bool Win32Window::TryCreate(const WindowParameters& parameters)
 {
 	if (not TryIncreaseCounter())
 	{
@@ -55,7 +68,7 @@ bool Win32Window::TryCreate()
 		return false;
 	}
 
-	if (not TryCreateAndShow())
+	if (not TryCreateAndShow(parameters))
 	{
 		DecreaseCounter();
 		return false;
@@ -86,14 +99,23 @@ bool Win32Window::TryIncreaseCounter()
 	return true;
 }
 
-bool Win32Window::TryCreateAndShow()
+bool Win32Window::TryCreateAndShow(const WindowParameters& parameters)
 {
+	DWORD windowStyle = parameters.isResizable ? WS_OVERLAPPEDWINDOW : WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+
+	RECT windowRect = { 0, 0, parameters.width, parameters.height };
+	if (AdjustWindowRect(&windowRect, windowStyle, FALSE) == FALSE)
+	{
+		m_lastErrorInfo = "Could not size window correctly.";
+		return false;
+	}
+
 	m_hwnd = CreateWindow(
 		MAKEINTATOM(s_windowClass.GetAtom()),
-		L"Game window",
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		640, 480,
+		StringToWideString(parameters.name).c_str(),
+		windowStyle,
+		CW_USEDEFAULT + windowRect.left, CW_USEDEFAULT + windowRect.top,
+		windowRect.right, windowRect.bottom,
 		NULL,
 		NULL,
 		(HINSTANCE)s_windowClass.GetHandle(),

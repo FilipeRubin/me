@@ -29,14 +29,9 @@ Window::~Window()
 	delete m_window;
 }
 
-bool Window::IsRunning() const
-{
-	return m_window->IsRunning();
-}
-
 bool Window::TryInitialize()
 {
-	if (not m_window->TryCreate())
+	if (not m_window->TryCreate(parameters))
 	{
 		m_logger->LogError(m_window->GetLastErrorInformation());
 		return false;

@@ -1,4 +1,5 @@
 #pragma once
+#include "window-parameters.h"
 #include <i-logger.h>
 #include <memory>
 #include <vector>
@@ -7,9 +8,9 @@ class Window
 {
 public:
 	static void Process();
+	WindowParameters parameters;
 	Window(std::unique_ptr<ILogger>&& logger);
 	~Window();
-	bool IsRunning() const;
 	bool TryInitialize();
 private:
 	static std::vector<class Win32Window*> s_windows;
