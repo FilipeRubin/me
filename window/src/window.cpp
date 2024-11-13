@@ -38,7 +38,7 @@ bool Window::TryInitialize()
 {
 	if (not m_window->TryCreate())
 	{
-		m_logger->LogError("Window failed to initialize.");
+		m_logger->LogError(m_window->GetLastErrorInformation());
 		return false;
 	}
 	m_logger->LogInfo("Window created successfully.");

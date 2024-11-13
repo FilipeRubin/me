@@ -27,6 +27,11 @@ void Win32Window::Destroy()
 	DecreaseCounter();
 }
 
+const std::string& Win32Window::GetLastErrorInformation() const
+{
+	return m_lastErrorInfo;
+}
+
 bool Win32Window::IsRunning() const
 {
 	return m_hwnd != NULL;
@@ -45,7 +50,10 @@ void Win32Window::PollWindowMessages()
 bool Win32Window::TryCreate()
 {
 	if (not TryIncreaseCounter())
+	{
+		m_lastErrorInfo = "Could not register window class.";
 		return false;
+	}
 
 	if (not TryCreateAndShow())
 	{
@@ -99,5 +107,6 @@ bool Win32Window::TryCreateAndShow()
 		return true;
 	}
 
+	m_lastErrorInfo = "Could not create window.";
 	return false;
 }
