@@ -21,7 +21,7 @@ static std::wstring StringToWideString(const std::string& source)
 void Win32Window::PollGeneralMessages()
 {
 	MSG msg = {};
-	while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+	while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) > 0)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -53,7 +53,7 @@ bool Win32Window::IsRunning() const
 void Win32Window::PollWindowMessages()
 {
 	MSG msg = {};
-	while (PeekMessage(&msg, (HWND)m_hwnd, 0U, 0U, PM_REMOVE))
+	while (PeekMessage(&msg, (HWND)m_hwnd, 0U, 0U, PM_REMOVE) > 0)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -114,8 +114,8 @@ bool Win32Window::TryCreateAndShow(const WindowParameters& parameters)
 		MAKEINTATOM(s_windowClass.GetAtom()),
 		StringToWideString(parameters.name).c_str(),
 		windowStyle,
-		CW_USEDEFAULT + windowRect.left, CW_USEDEFAULT + windowRect.top,
-		windowRect.right, windowRect.bottom,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
 		NULL,
 		NULL,
 		(HINSTANCE)s_windowClass.GetHandle(),
