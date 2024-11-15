@@ -9,6 +9,7 @@ public:
 	static unsigned int GetRunningWindowsCount();
 	void Destroy();
 	const std::string& GetLastErrorInformation() const;
+	void* GetHandle() const;
 	bool IsRunning() const;
 	void PollWindowMessages();
 	bool TryCreate(const WindowParameters& parameters);

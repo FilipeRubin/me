@@ -45,6 +45,11 @@ const std::string& Win32Window::GetLastErrorInformation() const
 	return m_lastErrorInfo;
 }
 
+void* Win32Window::GetHandle() const
+{
+	return m_hwnd;
+}
+
 bool Win32Window::IsRunning() const
 {
 	return m_hwnd != NULL;
