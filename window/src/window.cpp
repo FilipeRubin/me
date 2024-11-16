@@ -1,5 +1,7 @@
 #include "window.h"
 #include "win32/win32-window.h"
+#include <Windows.h>
+#include <gl/GL.h>
 
 std::vector<class Win32Window*> Window::s_windows = std::vector<class Win32Window*>();
 
@@ -11,7 +13,11 @@ void Window::Process()
 		for (Win32Window* window : s_windows)
 		{
 			if (window->IsRunning())
+			{
+				window->GetGraphicsContext().SetContext();
+				window->GetGraphicsContext().Present();
 				window->PollWindowMessages();
+			}
 		}
 	}
 }
@@ -29,13 +35,13 @@ Window::~Window()
 	delete m_window;
 }
 
-bool Window::TryInitialize()
+bool Window::TryInitialize(std::unique_ptr<IGraphicsContext>&& graphicsContext)
 {
-	if (not m_window->TryCreate(parameters))
+	if (not m_window->TryCreate(parameters, std::move(graphicsContext)))
 	{
 		m_logger->LogError(m_window->GetLastErrorInformation());
 		return false;
 	}
-	m_logger->LogInfo("Window created successfully.");
+	m_logger->LogInfo("Window created successfully");
 	return true;
 }

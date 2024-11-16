@@ -1,6 +1,5 @@
 #include "win32-window.h"
 #include <Windows.h>
-#include <iostream>
 
 Win32WindowClass Win32Window::s_windowClass = Win32WindowClass();
 unsigned int Win32Window::s_runningWindowsCount = 0U;
@@ -35,6 +34,7 @@ unsigned int Win32Window::GetRunningWindowsCount()
 
 void Win32Window::Destroy()
 {
+	m_graphicsContext->Terminate();
 	DestroyWindow((HWND)m_hwnd);
 	m_hwnd = NULL;
 	DecreaseCounter();
@@ -45,9 +45,9 @@ const std::string& Win32Window::GetLastErrorInformation() const
 	return m_lastErrorInfo;
 }
 
-void* Win32Window::GetHandle() const
+const IGraphicsContext& Win32Window::GetGraphicsContext() const
 {
-	return m_hwnd;
+	return *m_graphicsContext.get();
 }
 
 bool Win32Window::IsRunning() const
@@ -65,11 +65,11 @@ void Win32Window::PollWindowMessages()
 	}
 }
 
-bool Win32Window::TryCreate(const WindowParameters& parameters)
+bool Win32Window::TryCreate(const WindowParameters& parameters, std::unique_ptr<IGraphicsContext>&& graphicsContext)
 {
 	if (not TryIncreaseCounter())
 	{
-		m_lastErrorInfo = "Could not register window class.";
+		m_lastErrorInfo = "Could not register window class";
 		return false;
 	}
 
@@ -78,6 +78,15 @@ bool Win32Window::TryCreate(const WindowParameters& parameters)
 		DecreaseCounter();
 		return false;
 	}
+
+	if (not graphicsContext->TryInitialize(m_hwnd))
+	{
+		m_lastErrorInfo = "Could not initialize graphics context";
+		Destroy();
+		return false;
+	}
+
+	m_graphicsContext = std::move(graphicsContext);
 
 	return true;
 }
