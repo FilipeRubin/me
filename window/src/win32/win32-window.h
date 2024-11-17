@@ -9,6 +9,7 @@ class Win32Window
 public:
 	static void PollGeneralMessages();
 	static unsigned int GetRunningWindowsCount();
+	Win32Window();
 	void Destroy();
 	const std::string& GetLastErrorInformation() const;
 	const IGraphicsContext& GetGraphicsContext() const;

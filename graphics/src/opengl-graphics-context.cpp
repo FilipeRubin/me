@@ -34,7 +34,35 @@ bool OpenGLGraphicsContext::TryInitialize(void* windowHandle)
 		return false;
 	}
 
-	PIXELFORMATDESCRIPTOR pfd = {0};
+	if (not TryConfigurePixelFormat())
+	{
+		return false;
+	}
+
+	m_hglrc = wglCreateContext((HDC)m_hdc);
+
+	if (m_hglrc == NULL)
+	{
+		ReleaseDC((HWND)m_hwnd, (HDC)m_hdc);
+		return false;
+	}
+
+	return true;
+}
+
+void OpenGLGraphicsContext::Terminate()
+{
+	if (s_currentContext == this)
+	{
+		wglMakeCurrent(NULL, NULL);
+	}
+	wglDeleteContext((HGLRC)m_hglrc);
+	ReleaseDC((HWND)m_hwnd, (HDC)m_hdc);
+}
+
+bool OpenGLGraphicsContext::TryConfigurePixelFormat()
+{
+	PIXELFORMATDESCRIPTOR pfd = { 0 };
 	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
 	pfd.nVersion = 1;
 	pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
@@ -58,23 +86,5 @@ bool OpenGLGraphicsContext::TryInitialize(void* windowHandle)
 		return false;
 	}
 
-	m_hglrc = wglCreateContext((HDC)m_hdc);
-
-	if (m_hglrc == NULL)
-	{
-		ReleaseDC((HWND)m_hwnd, (HDC)m_hdc);
-		return false;
-	}
-
 	return true;
-}
-
-void OpenGLGraphicsContext::Terminate()
-{
-	if (s_currentContext == this)
-	{
-		wglMakeCurrent(NULL, NULL);
-	}
-	wglDeleteContext((HGLRC)m_hglrc);
-	ReleaseDC((HWND)m_hwnd, (HDC)m_hdc);
 }

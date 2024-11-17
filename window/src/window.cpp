@@ -1,7 +1,6 @@
 #include "window.h"
 #include "win32/win32-window.h"
 #include <Windows.h>
-#include <gl/GL.h>
 
 std::vector<class Win32Window*> Window::s_windows = std::vector<class Win32Window*>();
 

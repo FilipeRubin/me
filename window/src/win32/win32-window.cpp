@@ -32,6 +32,11 @@ unsigned int Win32Window::GetRunningWindowsCount()
 	return s_runningWindowsCount;
 }
 
+Win32Window::Win32Window() :
+	m_hwnd(nullptr)
+{
+}
+
 void Win32Window::Destroy()
 {
 	m_graphicsContext->Terminate();

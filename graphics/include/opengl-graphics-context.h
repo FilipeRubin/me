@@ -14,4 +14,5 @@ private:
 	void* m_hwnd;
 	void* m_hdc;
 	void* m_hglrc;
+	bool TryConfigurePixelFormat();
 };
