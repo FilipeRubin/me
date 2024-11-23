@@ -10,7 +10,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_CLOSE:
 	{
 		Win32Window* window = (Win32Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		window->Destroy();
+		window->SetRunning(false);
 		return 0;
 	}
 	default:
@@ -18,19 +18,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 }
 
-unsigned short Win32WindowClass::GetAtom() const
+unsigned short Win32WindowClass::GetId() const
 {
-	return m_registeredAtom;
+	return m_classId;
 }
 
-void* Win32WindowClass::GetHandle() const
+HINSTANCE Win32WindowClass::GetInstanceHandle() const
 {
 	return m_hInstance;
 }
 
 bool Win32WindowClass::IsActive() const
 {
-	return m_registeredAtom != NULL;
+	return m_classId != NULL;
 }
 
 bool Win32WindowClass::TryRegister(const wchar_t* className)
@@ -39,20 +39,22 @@ bool Win32WindowClass::TryRegister(const wchar_t* className)
 	if (m_hInstance == NULL)
 		return false;
 
-	WNDCLASS wc = {};
+	WNDCLASSEX wc = {};
+	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = CS_OWNDC;
 	wc.lpfnWndProc = WndProc;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
-	wc.hInstance = (HINSTANCE)m_hInstance;
+	wc.hInstance = m_hInstance;
 	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = className;
+	wc.hIconSm = NULL;
 
-	m_registeredAtom = RegisterClass(&wc);
-	if (m_registeredAtom == NULL)
+	m_classId = RegisterClassEx(&wc);
+	if (m_classId == NULL)
 		return false;
 
 	return true;
@@ -60,6 +62,7 @@ bool Win32WindowClass::TryRegister(const wchar_t* className)
 
 void Win32WindowClass::Unregister()
 {
-	BOOL result = UnregisterClass(MAKEINTATOM(m_registeredAtom), (HINSTANCE)m_hInstance);
-	assert(result);
+	UnregisterClass(MAKEINTATOM(m_classId), m_hInstance);
+	m_hInstance = nullptr;
+	m_classId = NULL;
 }

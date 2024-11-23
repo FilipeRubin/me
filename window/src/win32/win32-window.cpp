@@ -1,23 +1,10 @@
 #include "win32-window.h"
-#include <Windows.h>
 
 Win32WindowClass Win32Window::s_windowClass = Win32WindowClass();
+unsigned int Win32Window::s_registeredWindowsCount = 0U;
 unsigned int Win32Window::s_runningWindowsCount = 0U;
 
-static std::wstring StringToWideString(const std::string& source)
-{
-	if (source.empty())
-	{
-		return std::wstring();
-	}
-
-	size_t length = MultiByteToWideChar(CP_UTF8, 0, source.c_str(), (int)source.length(), 0, 0);
-	std::wstring result(length, L'\0');
-	MultiByteToWideChar(CP_UTF8, 0, source.c_str(), (int)source.length(), &result[0], (int)result.length());
-	return result;
-}
-
-void Win32Window::PollGeneralMessages()
+void Win32Window::PollMessages()
 {
 	MSG msg = {};
 	while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) > 0)
@@ -27,127 +14,114 @@ void Win32Window::PollGeneralMessages()
 	}
 }
 
-unsigned int Win32Window::GetRunningWindowsCount()
+bool Win32Window::IsAnyWindowRunning()
 {
-	return s_runningWindowsCount;
-}
-
-Win32Window::Win32Window() :
-	m_hwnd(nullptr)
-{
+	return s_runningWindowsCount != 0U;
 }
 
 void Win32Window::Destroy()
 {
-	m_graphicsContext->Terminate();
-	DestroyWindow((HWND)m_hwnd);
-	m_hwnd = NULL;
-	DecreaseCounter();
+	SetRunning(false);
+	if (m_hwnd != NULL)
+	{
+		DestroyWindow(m_hwnd);
+		m_hwnd = NULL;
+		Unregister();
+	}
 }
 
-const std::string& Win32Window::GetLastErrorInformation() const
+const void*& Win32Window::GetHandle() const
 {
-	return m_lastErrorInfo;
-}
-
-const IGraphicsContext& Win32Window::GetGraphicsContext() const
-{
-	return *m_graphicsContext.get();
+	return (const void*&)m_hwnd;
 }
 
 bool Win32Window::IsRunning() const
 {
-	return m_hwnd != NULL;
+	return m_isRunning;
 }
 
-void Win32Window::PollWindowMessages()
+bool Win32Window::TryCreate()
 {
-	MSG msg = {};
-	while (PeekMessage(&msg, (HWND)m_hwnd, 0U, 0U, PM_REMOVE) > 0)
+	if (not TryRegister())
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-}
-
-bool Win32Window::TryCreate(const WindowParameters& parameters, std::unique_ptr<IGraphicsContext>&& graphicsContext)
-{
-	if (not TryIncreaseCounter())
-	{
-		m_lastErrorInfo = "Could not register window class";
 		return false;
 	}
 
-	if (not TryCreateAndShow(parameters))
+	if (not TryCreateAndShow())
 	{
-		DecreaseCounter();
+		Unregister();
 		return false;
 	}
-
-	if (not graphicsContext->TryInitialize(m_hwnd))
-	{
-		m_lastErrorInfo = "Could not initialize graphics context";
-		Destroy();
-		return false;
-	}
-
-	m_graphicsContext = std::move(graphicsContext);
 
 	return true;
 }
 
-void Win32Window::DecreaseCounter()
+void Win32Window::Unregister()
 {
-	s_runningWindowsCount--;
-	if (s_runningWindowsCount == 0U)
+	s_registeredWindowsCount--;
+	if (s_registeredWindowsCount == 0U)
 	{
 		s_windowClass.Unregister();
 	}
 }
 
-bool Win32Window::TryIncreaseCounter()
+bool Win32Window::TryRegister()
 {
-	if (s_runningWindowsCount == 0U)
+	if (s_registeredWindowsCount == 0U)
 	{
 		if (not s_windowClass.TryRegister(L"GameWindow"))
 		{
 			return false;
 		}
 	}
-	s_runningWindowsCount++;
+	s_registeredWindowsCount++;
 	return true;
 }
 
-bool Win32Window::TryCreateAndShow(const WindowParameters& parameters)
+void Win32Window::SetRunning(bool value)
 {
-	DWORD windowStyle = parameters.isResizable ? WS_OVERLAPPEDWINDOW : WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+	if (m_isRunning != value)
+	{
+		m_isRunning = value;
 
-	RECT windowRect = { 0, 0, parameters.width, parameters.height };
+		s_runningWindowsCount += m_isRunning ? 1 : -1;
+
+		ShowWindow(m_hwnd, m_isRunning ? SW_SHOW : SW_HIDE);
+	}
+}
+
+bool Win32Window::TryCreateAndShow()
+{
+	const bool isResizable = true;
+	const DWORD windowStyle = isResizable ? WS_OVERLAPPEDWINDOW : WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME;
+	const int width = 800;
+	const int height = 600;
+
+	RECT windowRect = { 0, 0, width, height };
 	if (AdjustWindowRect(&windowRect, windowStyle, FALSE) == FALSE)
 	{
-		m_lastErrorInfo = "Could not size window correctly.";
 		return false;
 	}
 
-	m_hwnd = CreateWindow(
-		MAKEINTATOM(s_windowClass.GetAtom()),
-		StringToWideString(parameters.name).c_str(),
+	m_hwnd = CreateWindowEx(
+		NULL,
+		MAKEINTATOM(s_windowClass.GetId()),
+		L"ME Engine",
 		windowStyle,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top,
 		NULL,
 		NULL,
-		(HINSTANCE)s_windowClass.GetHandle(),
+		s_windowClass.GetInstanceHandle(),
 		NULL
 	);
 
-	if (m_hwnd != NULL)
+	if (m_hwnd == NULL)
 	{
-		SetWindowLongPtr((HWND)m_hwnd, GWLP_USERDATA, (LONG_PTR)this);
-		ShowWindow((HWND)m_hwnd, SW_SHOW);
-		return true;
+		return false;
 	}
 
-	m_lastErrorInfo = "Could not create window.";
-	return false;
+	SetWindowLongPtr(m_hwnd, GWLP_USERDATA, (LONG_PTR)this);
+	SetRunning(true);
+	return true;
 }

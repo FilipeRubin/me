@@ -2,45 +2,50 @@
 #include "win32/win32-window.h"
 #include <Windows.h>
 
-std::vector<class Win32Window*> Window::s_windows = std::vector<class Win32Window*>();
+std::vector<Window*> Window::s_windows = std::vector<Window*>();
 
-void Window::Process()
+bool Window::IsAnyWindowRunning()
 {
-	while (Win32Window::GetRunningWindowsCount() > 0U)
-	{
-		Win32Window::PollGeneralMessages();
-		for (Win32Window* window : s_windows)
-		{
-			if (window->IsRunning())
-			{
-				window->GetGraphicsContext().SetContext();
-				window->GetGraphicsContext().Present();
-				window->PollWindowMessages();
-			}
-		}
-	}
+	return Win32Window::IsAnyWindowRunning();
 }
 
-Window::Window(std::unique_ptr<ILogger>&& logger) :
-	m_window(new Win32Window()),
-	m_logger(std::move(logger))
+void Window::PollMessages()
 {
-	s_windows.emplace_back(m_window);
+	Win32Window::PollMessages();
+}
+
+Window::Window() :
+	m_win32window(new Win32Window())
+{
+	s_windows.emplace_back(this);
 }
 
 Window::~Window()
 {
-	s_windows.erase(std::remove(s_windows.begin(), s_windows.end(), m_window), s_windows.end());
-	delete m_window;
+	s_windows.erase(std::remove(s_windows.begin(), s_windows.end(), this), s_windows.end());
+	delete m_win32window;
 }
 
-bool Window::TryInitialize(std::unique_ptr<IGraphicsContext>&& graphicsContext)
+void Window::Destroy()
 {
-	if (not m_window->TryCreate(parameters, std::move(graphicsContext)))
+	m_win32window->Destroy();
+}
+
+const void*& Window::GetHandle() const
+{
+	return m_win32window->GetHandle();
+}
+
+bool Window::IsRunning() const
+{
+	return m_win32window->IsRunning();
+}
+
+bool Window::TryCreate()
+{
+	if (not m_win32window->TryCreate())
 	{
-		m_logger->LogError(m_window->GetLastErrorInformation());
 		return false;
 	}
-	m_logger->LogInfo("Window created successfully");
 	return true;
 }

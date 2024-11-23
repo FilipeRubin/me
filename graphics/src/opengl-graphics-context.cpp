@@ -1,13 +1,18 @@
 #include "opengl-graphics-context.h"
 #include <Windows.h>
+#include <gl/GL.h>
 
-OpenGLGraphicsContext* OpenGLGraphicsContext::s_currentContext = nullptr;
-
-OpenGLGraphicsContext::OpenGLGraphicsContext() :
-	m_hwnd(nullptr),
-	m_hdc(nullptr),
-	m_hglrc(nullptr)
+OpenGLGraphicsContext::OpenGLGraphicsContext(const void*& windowHandle) :
+	m_hwnd(windowHandle)
 {
+}
+
+void OpenGLGraphicsContext::MakeCurrent() const
+{
+	if (wglGetCurrentContext() != m_hglrc)
+	{
+		wglMakeCurrent((HDC)m_hdc, (HGLRC)m_hglrc);
+	}
 }
 
 void OpenGLGraphicsContext::Present() const
@@ -15,18 +20,8 @@ void OpenGLGraphicsContext::Present() const
 	SwapBuffers((HDC)m_hdc);
 }
 
-void OpenGLGraphicsContext::SetContext() const
+bool OpenGLGraphicsContext::TryInitialize()
 {
-	if (s_currentContext != this)
-	{
-		wglMakeCurrent((HDC)m_hdc, (HGLRC)m_hglrc);
-		s_currentContext = const_cast<OpenGLGraphicsContext*>(this);
-	}
-}
-
-bool OpenGLGraphicsContext::TryInitialize(void* windowHandle)
-{
-	m_hwnd = windowHandle;
 	m_hdc = GetDC((HWND)m_hwnd);
 
 	if (m_hdc == NULL)
@@ -52,12 +47,22 @@ bool OpenGLGraphicsContext::TryInitialize(void* windowHandle)
 
 void OpenGLGraphicsContext::Terminate()
 {
-	if (s_currentContext == this)
+	if (wglGetCurrentContext() == m_hglrc)
 	{
 		wglMakeCurrent(NULL, NULL);
 	}
 	wglDeleteContext((HGLRC)m_hglrc);
 	ReleaseDC((HWND)m_hwnd, (HDC)m_hdc);
+}
+
+void OpenGLGraphicsContext::DrawTriangle(float r, float g, float b)
+{
+	glBegin(GL_TRIANGLES);
+	glColor3f(r, g, b);
+	glVertex2d(0.5f, -0.5f);
+	glVertex2d(0.0f, 0.5f);
+	glVertex2d(-0.5f, -0.5f);
+	glEnd();
 }
 
 bool OpenGLGraphicsContext::TryConfigurePixelFormat()
