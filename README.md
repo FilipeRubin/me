@@ -1,19 +1,28 @@
 # Minimal and Efficient
 This is a project with the goal of making a 3D renderer without using any premade libraries, relying only on the Windows API. It should support OpenGL for rendering and be able to be used for making games (long-term goal).
-The solution is split-up into projects that handle specific tasks. A project may depend on another, but it should do it using abstractions (except when it means extra unnecessary performance overhead).
-The API is made in a way that anyone with a basic knowledge of C++ can understand what it does (not necessarily _how_ it does) and create applications with it. For instance, this is how a simple window can be created:
+
+The solution is split-up into projects that handle specific tasks. A project may not depend on another, but pieces of one can be "glued" onto another using abstractions or primitive types (such as pointers).
+
+The API is made in a way so that anyone with a basic knowledge of C++ can understand what it does (not necessarily _how_ it does) and create applications with it. For instance, this is how a simple window can be created:
 ```c++
 int main()
 {
-	unique_ptr<ILogger> logger = make_unique<ConsoleLogger>(); // Object that implements logging functionality
-	Window window(move(logger)); // Object that encapsulates windowing functionality (and uses the logger)
-
-	if (not window.TryInitialize()) // Try to initialize the window
+	// Object that encapsulates windowing functionality
+	Window window;
+	
+	// Try to initialize the window
+	if (not window.TryCreate())
 		return -1;
-
-	Window::Process(); // Run every active window loop (support multiple windows)
-
-	return 0; // Returns when every window is closed
+	
+	// Run loop while there's at least one window running
+	while (Window::IsAnyWindowRunning())
+	{
+		// Process messages for all running windows (only one in this case)
+		Window::PollMessages();
+	}
+	
+	// Destroy the window after the application is closed
+	window.Destroy();
 }
 ```
 
