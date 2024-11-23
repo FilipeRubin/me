@@ -1,4 +1,4 @@
-#include "opengl-graphics-context.h"
+#include "graphics/opengl-graphics-context.h"
 #include <Windows.h>
 #include <gl/GL.h>
 

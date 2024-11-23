@@ -1,6 +1,5 @@
-#include "window.h"
+#include "window/window.h"
 #include "win32/win32-window.h"
-#include <Windows.h>
 
 std::vector<Window*> Window::s_windows = std::vector<Window*>();
 

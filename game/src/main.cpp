@@ -1,5 +1,5 @@
-#include <window.h>
-#include <opengl-graphics-context.h>
+#include <window/window.h>
+#include <graphics/opengl-graphics-context.h>
 
 int main()
 {

@@ -15,15 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\i-graphics-context.h">
+    <ClInclude Include="include\graphics\i-graphics-context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\opengl-graphics-context.h">
+    <ClInclude Include="include\graphics\opengl-graphics-context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\opengl-graphics-context.cpp">
+    <ClCompile Include="src\graphics\opengl-graphics-context.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

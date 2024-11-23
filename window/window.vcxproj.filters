@@ -15,24 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\window.h">
+    <ClInclude Include="include\window\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\win32-window-class.h">
+    <ClInclude Include="src\window\win32\win32-window-class.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\win32\win32-window.h">
+    <ClInclude Include="src\window\win32\win32-window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\window.cpp">
+    <ClCompile Include="src\window\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\win32-window-class.cpp">
+    <ClCompile Include="src\window\win32\win32-window-class.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32\win32-window.cpp">
+    <ClCompile Include="src\window\win32\win32-window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

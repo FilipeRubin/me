@@ -19,14 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\window.h" />
-    <ClInclude Include="src\win32\win32-window-class.h" />
-    <ClInclude Include="src\win32\win32-window.h" />
+    <ClInclude Include="include\window\window.h" />
+    <ClInclude Include="src\window\win32\win32-window-class.h" />
+    <ClInclude Include="src\window\win32\win32-window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\win32\win32-window-class.cpp" />
-    <ClCompile Include="src\win32\win32-window.cpp" />
-    <ClCompile Include="src\window.cpp" />
+    <ClCompile Include="src\window\win32\win32-window-class.cpp" />
+    <ClCompile Include="src\window\win32\win32-window.cpp" />
+    <ClCompile Include="src\window\window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

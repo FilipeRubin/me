@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\i-graphics-context.h" />
-    <ClInclude Include="include\opengl-graphics-context.h" />
+    <ClInclude Include="include\graphics\i-graphics-context.h" />
+    <ClInclude Include="include\graphics\opengl-graphics-context.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\opengl-graphics-context.cpp" />
+    <ClCompile Include="src\graphics\opengl-graphics-context.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
