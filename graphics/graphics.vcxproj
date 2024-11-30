@@ -21,8 +21,11 @@
   <ItemGroup>
     <ClInclude Include="include\graphics\i-graphics-context.h" />
     <ClInclude Include="include\graphics\opengl-graphics-context.h" />
+    <ClInclude Include="src\graphics\opengl-defines.h" />
+    <ClInclude Include="src\graphics\opengl-helpers.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\graphics\opengl-helpers.cpp" />
     <ClCompile Include="src\graphics\opengl-graphics-context.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -21,9 +21,18 @@
     <ClInclude Include="include\graphics\opengl-graphics-context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphics\opengl-helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\opengl-defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\graphics\opengl-graphics-context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\opengl-helpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
